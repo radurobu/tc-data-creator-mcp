@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "tc-data-creator": {
+      "command": "python",
+      "args": [
+        "-m",
+        "tc_data_creator_mcp.server"
+      ],
+      "env": {
+        "PYTHONPATH": "C:\\Radu\\ML_Projects\\tc-data-creator-mcp\\src"
+      }
+    }
+  }
+}

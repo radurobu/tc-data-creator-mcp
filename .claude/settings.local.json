@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(test:*)",
+      "Bash(pip install:*)",
+      "Bash(where:*)",
+      "Bash(C:UsersroburAppDataLocalProgramsPythonPython311python.exe -m venv venv)",
+      "Bash(\"C:\\\\Users\\\\robur\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python311\\\\python.exe\" -m venv venv)",
+      "Bash(.venvScriptsactivate)",
+      "Bash(./venv/Scripts/pip install:*)",
+      "Bash(./venv/Scripts/python:*)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "tc-data-creator"
+  ],
+  "enableAllProjectMcpServers": true
+}
