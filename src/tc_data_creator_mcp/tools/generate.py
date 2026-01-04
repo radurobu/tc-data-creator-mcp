@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import logging
 import time
 from datetime import datetime
 from pathlib import Path
@@ -15,6 +16,8 @@ from ..config import (
     DEFAULT_OUTPUT_DIR,
     SUPPORTED_OUTPUT_FORMATS,
 )
+
+logger = logging.getLogger(__name__)
 
 
 async def generate_synthetic_data(
@@ -46,6 +49,7 @@ async def generate_synthetic_data(
         Dictionary with generation results and quality metrics
     """
     start_time = time.time()
+    logger.info(f"Starting generation of {num_rows} rows")
 
     # Validate num_rows
     if num_rows > MAX_GENERATED_ROWS:
@@ -54,21 +58,29 @@ async def generate_synthetic_data(
         )
 
     # Load the sample data
+    logger.info("Loading sample data...")
     df = await load_data(
         file_path=file_path,
         inline_data=inline_data,
         db_connection=db_connection,
         table_name=table_name,
     )
+    logger.info(f"Loaded {len(df)} rows of sample data")
 
     # Create synthesizer
+    logger.info("Creating synthesizer...")
     synth = create_synthesizer(synthesizer, constraints)
+    logger.info("Synthesizer created")
 
-    # Fit the synthesizer on sample data (run in thread pool as it can be CPU-intensive)
-    await asyncio.to_thread(synth.fit, df)
+    # Fit the synthesizer on sample data
+    logger.info("Fitting synthesizer...")
+    synth.fit(df)
+    logger.info("Synthesizer fitted")
 
-    # Generate synthetic data (run in thread pool as it can be CPU-intensive)
-    synthetic_df = await asyncio.to_thread(synth.sample, num_rows)
+    # Generate synthetic data
+    logger.info("Generating synthetic data...")
+    synthetic_df = synth.sample(num_rows)
+    logger.info(f"Generated {len(synthetic_df)} rows")
 
     # Determine output path
     if output_path is None:
@@ -81,18 +93,18 @@ async def generate_synthetic_data(
     # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Write output file (run in thread pool to avoid blocking)
+    # Write output file
     if output_format == "csv":
-        await asyncio.to_thread(synthetic_df.to_csv, output_path, index=False)
+        synthetic_df.to_csv(output_path, index=False)
     elif output_format == "json":
-        await asyncio.to_thread(synthetic_df.to_json, output_path, orient="records", indent=2)
+        synthetic_df.to_json(output_path, orient="records", indent=2)
     elif output_format == "parquet":
-        await asyncio.to_thread(synthetic_df.to_parquet, output_path, index=False)
+        synthetic_df.to_parquet(output_path, index=False)
     else:
         raise ValueError(f"Unsupported output format: {output_format}")
 
-    # Generate quality report (run in thread pool as it can be CPU-intensive)
-    quality_report = await asyncio.to_thread(generate_quality_report, df, synthetic_df)
+    # Generate quality report
+    quality_report = generate_quality_report(df, synthetic_df)
 
     generation_time = time.time() - start_time
 

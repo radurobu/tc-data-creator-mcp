@@ -35,12 +35,6 @@ async def analyze_sample_data(
         table_name=table_name,
     )
 
-    # Run analysis in thread pool to avoid blocking event loop
-    return await asyncio.to_thread(_analyze_dataframe, df)
-
-
-def _analyze_dataframe(df: pd.DataFrame) -> dict:
-    """Synchronous analysis function that runs in thread pool."""
     # Basic statistics
     row_count = len(df)
     column_count = len(df.columns)

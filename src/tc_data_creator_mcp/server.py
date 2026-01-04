@@ -144,20 +144,27 @@ async def list_tools() -> list[Tool]:
 async def call_tool(name: str, arguments: Any) -> list[TextContent]:
     """Handle tool calls."""
     try:
+        logger.info(f"Tool called: {name}")
+
         if name == "analyze_sample_data":
+            logger.info("Importing analyze tool...")
             from .tools.analyze import analyze_sample_data
 
+            logger.info("Calling analyze_sample_data...")
             result = await analyze_sample_data(
                 file_path=arguments.get("file_path"),
                 inline_data=arguments.get("inline_data"),
                 db_connection=arguments.get("db_connection"),
                 table_name=arguments.get("table_name"),
             )
+            logger.info("Analyze completed")
             return [TextContent(type="text", text=str(result))]
 
         elif name == "generate_synthetic_data":
+            logger.info("Importing generate tool...")
             from .tools.generate import generate_synthetic_data
 
+            logger.info("Calling generate_synthetic_data...")
             result = await generate_synthetic_data(
                 file_path=arguments.get("file_path"),
                 inline_data=arguments.get("inline_data"),
@@ -169,16 +176,20 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
                 output_format=arguments.get("output_format", "csv"),
                 output_path=arguments.get("output_path"),
             )
+            logger.info(f"Generate completed: {result.get('rows_generated', 0)} rows")
             return [TextContent(type="text", text=str(result))]
 
         elif name == "validate_synthetic_quality":
+            logger.info("Importing validate tool...")
             from .tools.validate import validate_synthetic_quality
 
+            logger.info("Calling validate_synthetic_quality...")
             result = await validate_synthetic_quality(
                 original_data_path=arguments["original_data_path"],
                 synthetic_data_path=arguments["synthetic_data_path"],
                 metadata=arguments.get("metadata"),
             )
+            logger.info("Validate completed")
             return [TextContent(type="text", text=str(result))]
 
         else:

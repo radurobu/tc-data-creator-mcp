@@ -11,7 +11,8 @@
       "Bash(./venv/Scripts/python:*)",
       "Bash(timeout 5 ./venv/Scripts/python:*)",
       "mcp__tc-data-creator__analyze_sample_data",
-      "mcp__tc-data-creator__generate_synthetic_data"
+      "mcp__tc-data-creator__generate_synthetic_data",
+      "Bash(python restart_mcp_server.py:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
