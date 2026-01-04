@@ -73,4 +73,45 @@ class GaussianCopulaSynthesizerWrapper(BaseSynthesizer):
         # Generate synthetic data
         synthetic_data = self.synthesizer.sample(num_rows)
 
+        # Post-process to apply constraints that SDV doesn't support natively
+        synthetic_data = self._apply_post_constraints(synthetic_data)
+
         return synthetic_data
+
+    def _apply_post_constraints(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Apply constraints that need post-processing."""
+        if not self.constraints:
+            return df
+
+        # Apply manual constraints
+        for col, config in self.constraints.items():
+            if isinstance(config, dict) and col in df.columns:
+                # Clip min/max values (since enforce_min_max_values may not be perfect)
+                if "min" in config or "max" in config:
+                    low = config.get("min")
+                    high = config.get("max")
+                    if pd.api.types.is_numeric_dtype(df[col]):
+                        df[col] = df[col].clip(lower=low, upper=high)
+
+                # Handle unique constraint by making values unique
+                if config.get("unique", False):
+                    # For email or other string columns, append unique suffixes if needed
+                    if df[col].duplicated().any():
+                        # Keep track of duplicates and make them unique
+                        seen = {}
+                        def make_unique(val):
+                            if val not in seen:
+                                seen[val] = 0
+                                return val
+                            else:
+                                seen[val] += 1
+                                # For emails, insert counter before @
+                                if '@' in str(val):
+                                    local, domain = str(val).rsplit('@', 1)
+                                    return f"{local}+{seen[val]}@{domain}"
+                                else:
+                                    return f"{val}_{seen[val]}"
+
+                        df[col] = df[col].apply(make_unique)
+
+        return df

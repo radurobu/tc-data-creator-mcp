@@ -8,11 +8,14 @@
       "Bash(\"C:\\\\Users\\\\robur\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python311\\\\python.exe\" -m venv venv)",
       "Bash(.venvScriptsactivate)",
       "Bash(./venv/Scripts/pip install:*)",
-      "Bash(./venv/Scripts/python:*)"
+      "Bash(./venv/Scripts/python:*)",
+      "Bash(timeout 5 ./venv/Scripts/python:*)",
+      "mcp__tc-data-creator__analyze_sample_data",
+      "mcp__tc-data-creator__generate_synthetic_data"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "tc-data-creator"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

@@ -67,27 +67,26 @@ class ConstraintsHandler:
         """Build constraints for a single column."""
         constraints = []
 
-        # ScalarRange constraint for min/max on a single column
+        # NOTE: ScalarRange is deprecated in SDV 1.32.0
+        # Min/max constraints are now handled via enforce_min_max_values parameter
+        # in the synthesizer constructor, so we skip ScalarRange here
+
+        # Simple boundary constraints (only if exactly 0)
         if "min" in config or "max" in config:
             low = config.get("min")
             high = config.get("max")
-            if low is not None and high is not None:
-                constraints.append(
-                    ScalarRange(
-                        column_name=column,
-                        low_value=low,
-                        high_value=high,
-                        strict_boundaries=config.get("strict", True)
-                    )
-                )
-            elif low is not None and low == 0:
+
+            if low is not None and low == 0 and (high is None or high > 0):
                 constraints.append(Positive(column_name=column))
-            elif high is not None and high == 0:
+            elif high is not None and high == 0 and (low is None or low < 0):
                 constraints.append(Negative(column_name=column))
 
-        # Unique constraint
-        if config.get("unique", False):
-            constraints.append(Unique(column_name=column))
+        # NOTE: Unique constraint from sdv.constraints.tabular is not compatible
+        # with single table synthesizers in SDV 1.32.0 due to missing _is_single_table attribute
+        # For unique constraints, we'll need to validate post-generation instead
+        # if config.get("unique", False):
+        #     # This will cause AttributeError: 'Unique' object has no attribute '_is_single_table'
+        #     pass
 
         # Categorical values constraint
         if "values" in config:

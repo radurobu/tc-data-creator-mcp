@@ -1,5 +1,6 @@
 """Unified data loader for all input sources."""
 
+import asyncio
 import json
 from pathlib import Path
 from typing import Optional
@@ -85,15 +86,15 @@ async def _load_from_file(file_path: str) -> pd.DataFrame:
             f"File size ({size_mb:.2f}MB) exceeds maximum ({MAX_SAMPLE_SIZE_MB}MB)"
         )
 
-    # Load based on extension
+    # Load based on extension (run in thread pool to avoid blocking)
     suffix = path.suffix.lower()
 
     if suffix == ".csv":
-        df = pd.read_csv(path)
+        df = await asyncio.to_thread(pd.read_csv, path)
     elif suffix == ".json":
-        df = pd.read_json(path)
+        df = await asyncio.to_thread(pd.read_json, path)
     elif suffix == ".parquet":
-        df = pd.read_parquet(path)
+        df = await asyncio.to_thread(pd.read_parquet, path)
     else:
         raise ValueError(
             f"Unsupported file format: {suffix}. "
@@ -116,25 +117,29 @@ async def _load_from_inline(inline_data: str) -> pd.DataFrame:
     if len(data) == 0:
         raise ValueError("Inline data cannot be empty")
 
-    df = pd.DataFrame(data)
+    df = await asyncio.to_thread(pd.DataFrame, data)
     return df
 
 
 async def _load_from_database(db_connection: str, table_name: str) -> pd.DataFrame:
     """Load data from a database table."""
-    try:
-        engine = create_engine(db_connection)
+    def _load_db():
+        """Inner function to run in thread pool."""
+        try:
+            engine = create_engine(db_connection)
 
-        # Load with row limit to prevent loading huge tables
-        query = f"SELECT * FROM {table_name} LIMIT {MAX_SAMPLE_ROWS}"
+            # Load with row limit to prevent loading huge tables
+            query = f"SELECT * FROM {table_name} LIMIT {MAX_SAMPLE_ROWS}"
 
-        with engine.connect() as conn:
-            df = pd.read_sql(query, conn)
+            with engine.connect() as conn:
+                df = pd.read_sql(query, conn)
 
-        return df
+            return df
 
-    except Exception as e:
-        raise ValueError(f"Database connection error: {e}")
+        except Exception as e:
+            raise ValueError(f"Database connection error: {e}")
+
+    return await asyncio.to_thread(_load_db)
 
 
 def _validate_data(df: pd.DataFrame) -> None:
