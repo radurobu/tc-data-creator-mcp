@@ -2,11 +2,8 @@
   "mcpServers": {
     "tc-data-creator": {
       "type": "stdio",
-      "command": "cmd.exe",
-      "args": [
-        "/c",
-        "C:\\Radu\\ML_Projects\\tc-data-creator-mcp\\start_mcp_server.bat"
-      ]
+      "command": "python",
+      "args": ["-m", "tc_data_creator_mcp.server"]
     }
   }
 }

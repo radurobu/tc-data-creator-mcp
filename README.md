@@ -39,6 +39,7 @@ When developers use AI for creating automated tests, they often rely on the LLM 
 
 ```bash
 # Clone the repository
+git clone https://github.com/radurobu/tc-data-creator-mcp.git
 cd tc-data-creator-mcp
 
 # Install dependencies
@@ -48,14 +49,22 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
+### Install from GitHub (without cloning)
+
+```bash
+pip install git+https://github.com/radurobu/tc-data-creator-mcp.git
+```
+
 ### Configure MCP
 
-Add to your Claude Desktop config file:
+# 1. Clone and install
+  git clone https://github.com/radurobu/tc-data-creator-mcp.git
+  cd tc-data-creator-mcp
+  pip install -e .
 
-**MacOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows**: `%APPDATA%/Claude/claude_desktop_config.json`
+# 2. Copy the MCP config to their project or use globally
 
-```json
+The .mcp.json now works on Windows, macOS, and Linux without modification.
 {
   "mcpServers": {
     "tc-data-creator": {
@@ -363,7 +372,7 @@ Built with:
 ## Support
 
 For issues, questions, or contributions:
-- GitHub Issues: [Create an issue](https://github.com/yourusername/tc-data-creator-mcp/issues)
+- GitHub Issues: [Create an issue](https://github.com/radurobu/tc-data-creator-mcp/issues)
 - Documentation: See this README
 
 ## Changelog
