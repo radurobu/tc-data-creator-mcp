@@ -1,4 +1,4 @@
-# TC Data Creator MCP
+# Test Case Data Creator MCP
 
 A Model Context Protocol (MCP) server for generating realistic synthetic test data using the Synthetic Data Vault (SDV) library. This tool helps AI coding assistants like Claude generate high-quality, realistic test cases instead of relying on simple random data generation.
 
