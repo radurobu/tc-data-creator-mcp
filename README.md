@@ -55,15 +55,17 @@ pip install -e .
 pip install git+https://github.com/radurobu/tc-data-creator-mcp.git
 ```
 
-### Configure MCP
+## Configure MCP
 
-# 1. Clone and install
-  git clone https://github.com/radurobu/tc-data-creator-mcp.git
-  cd tc-data-creator-mcp
-  pip install -e .
+### 1. Clone and install
+```bash
+git clone https://github.com/radurobu/tc-data-creator-mcp.git
+cd tc-data-creator-mcp
+pip install -e .
+```
 
-# 2. Copy the MCP config to their project or use globally
-
+### 2. Copy the MCP config to their project or use globally
+```bash
 The .mcp.json now works on Windows, macOS, and Linux without modification.
 {
   "mcpServers": {
